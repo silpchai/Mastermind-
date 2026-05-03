@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulls and Cows - เกมทายเลข 4 หลัก</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; padding: 20px; background-color: #f0f2f5; }
+        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h1 { color: #1a73e8; margin-bottom: 10px; }
+        p { color: #5f6368; font-size: 0.9rem; }
+        .input-group { margin: 20px 0; }
+        input { padding: 10px; font-size: 1.2rem; width: 120px; text-align: center; border: 2px solid #ddd; border-radius: 8px; outline: none; }
+        input:focus { border-color: #1a73e8; }
+        button { padding: 10px 20px; font-size: 1rem; cursor: pointer; border: none; border-radius: 8px; transition: 0.3s; margin: 5px; }
+        .btn-guess { background-color: #1a73e8; color: white; }
+        .btn-guess:hover { background-color: #1557b0; }
+        .btn-reset { background-color: #ea4335; color: white; }
+        #log { margin-top: 20px; text-align: left; max-height: 250px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 10px; }
+        .log-item { padding: 8px; border-bottom: 1px solid #fafafa; font-family: monospace; }
+        .bull { color: #34a853; font-weight: bold; }
+        .cow { color: #fbbc05; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bulls & Cows</h1>
+    <p>ทายเลข 4 หลักที่ไม่ซ้ำกัน (0-9)</p>
+    
+    <div class="input-group">
+        <input type="text" id="guessInput" maxlength="4" placeholder="1234" onkeypress="handleEnter(event)">
+        <br>
+        <button class="btn-guess" onclick="makeGuess()">ทายคำตอบ</button>
+        <button class="btn-reset" onclick="initGame()">เริ่มใหม่</button>
+    </div>
+
+    <div id="message"></div>
+    <div id="log"></div>
+</div>
+
+<script>
+    let secretCode = "";
+    let attempts = 0;
+
+    // เริ่มเกมครั้งแรก
+    initGame();
+
+    function initGame() {
+        secretCode = "";
+        const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        // สุ่มเลข 4 หลักไม่ซ้ำ
+        for (let i = 0; i < 4; i++) {
+            const randomIndex = Math.floor(Math.random() * numbers.length);
+            secretCode += numbers.splice(randomIndex, 1);
+        }
+        attempts = 0;
+        document.getElementById('log').innerHTML = "";
+        document.getElementById('message').innerHTML = "เกมเริ่มแล้ว! ลองทายดูสิ";
+        document.getElementById('guessInput').value = "";
+        console.log("Secret Code (for debugging):", secretCode); // แอบดูเฉลยใน Console ได้
+    }
+
+    function handleEnter(e) {
+        if (e.key === 'Enter') makeGuess();
+    }
+
+    function makeGuess() {
+        const input = document.getElementById('guessInput').value;
+        const message = document.getElementById('message');
+        const log = document.getElementById('log');
+
+        // ตรวจสอบ Input
+        if (input.length !== 4 || isNaN(input)) {
+            alert("กรุณาใส่ตัวเลขให้ครบ 4 หลัก");
+            return;
+        }
+        if (new Set(input).size !== 4) {
+            alert("ตัวเลขห้ามซ้ำกัน!");
+            return;
+        }
+
+        attempts++;
+        let bulls = 0;
+        let cows = 0;
+
+        // ตรวจสอบ Bulls และ Cows
+        for (let i = 0; i < 4; i++) {
+            if (input[i] === secretCode[i]) {
+                bulls++;
+            } else if (secretCode.includes(input[i])) {
+                cows++;
+            }
+        }
+
+        // แสดงผล
+        const logItem = document.createElement('div');
+        logItem.className = 'log-item';
+        logItem.innerHTML = `#${attempts} | ทาย: <strong>${input}</strong> -> <span class="bull">${bulls} Bulls</span>, <span class="cow">${cows} Cows</span>`;
+        log.prepend(logItem);
+
+        if (bulls === 4) {
+            message.innerHTML = `<h2 style="color:#34a853">ยินดีด้วย! คุณชนะแล้ว!</h2> ใช้ไปทั้งหมด ${attempts} ครั้ง`;
+            alert("ไชโย! คุณชนะแล้ว");
+        } else {
+            message.innerHTML = `พยายามต่อไป! (ทายไปแล้ว ${attempts} ครั้ง)`;
+        }
+
+        document.getElementById('guessInput').value = "";
+        document.getElementById('guessInput').focus();
+    }
+</script>
+
+</body>
+</html>
