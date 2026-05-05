@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A/B Logic Codebreaker - เกมทายเลข 4 หลัก</title>
+    <title>A/B Logic - Bottom Focus</title>
     <style>
         :root {
             --primary: #2c3e50;
-            --accent: #e74c3c; /* Red for A */
-            --secondary: #3498db; /* Blue for B */
-            --light: #ecf0f1;
+            --accent: #e74c3c;
+            --secondary: #3498db;
         }
 
         body {
@@ -20,55 +19,52 @@
             min-height: 100vh;
             margin: 0;
             background-color: #f4f7f6;
-            color: #333;
         }
 
         .container {
             background: white;
-            padding: 3rem;
+            padding: 2rem;
             border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 420px;
-            text-align: center;
-        }
-
-        h1 {
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-            font-size: 2.2rem;
-        }
-
-        .game-desc {
-            color: #7f8c8d;
-            font-size: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .key-legend {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        .key-a {
-            color: var(--accent);
-            border-bottom: 2px solid var(--accent);
-        }
-
-        .key-b {
-            color: var(--secondary);
-            border-bottom: 2px solid var(--secondary);
-        }
-
-        .input-group {
+            max-width: 400px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 2rem;
+            height: 80vh; /* กำหนดความสูงคงที่เพื่อให้ Scroll ด้านใน */
+        }
+
+        .header { text-align: center; flex-shrink: 0; }
+        h1 { color: var(--primary); margin: 0; }
+        
+        /* ส่วนแสดงผลประวัติการทาย (Scroll ได้) */
+        #log {
+            flex-grow: 1;
+            margin: 20px 0;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            overflow-y: auto; /* เปิด Scroll */
+            background-color: #fafafa;
+        }
+
+        .log-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ส่วนควบคุมด้านล่าง */
+        .controls {
+            flex-shrink: 0;
+            padding-top: 10px;
+            border-top: 2px solid #eee;
         }
 
         input {
@@ -78,205 +74,107 @@
             text-align: center;
             border: 2px solid #ddd;
             border-radius: 10px;
+            width: calc(100% - 28px);
             outline: none;
-            transition: 0.3s;
+            margin-bottom: 10px;
         }
 
-        input:focus {
-            border-color: var(--secondary);
-            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
-        }
-
-        .button-row {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
+        .button-row { display: flex; gap: 10px; }
         button {
-            padding: 12px 24px;
+            padding: 12px;
             font-size: 1rem;
             cursor: pointer;
             border: none;
             border-radius: 8px;
-            transition: 0.2s;
             font-weight: 600;
+            flex: 1;
         }
+        .btn-guess { background-color: var(--primary); color: white; }
+        .btn-reset { background-color: #ddd; color: #333; }
 
-        .btn-guess {
-            background-color: var(--primary);
-            color: white;
-            flex-grow: 2;
-        }
-
-        .btn-guess:hover {
-            background-color: #1a252f;
-        }
-
-        .btn-reset {
-            background-color: #e0e0e0;
-            color: #333;
-            flex-grow: 1;
-        }
-
-        .btn-reset:hover {
-            background-color: #d0d0d0;
-        }
-
-        #message {
-            margin-top: 1rem;
-            font-size: 1.1rem;
-            font-weight: 500;
-        }
-
-        #log {
-            margin-top: 2rem;
-            text-align: left;
-            max-height: 250px;
-            overflow-y: auto;
-            border-top: 2px solid #eee;
-            padding-top: 15px;
-            font-family: 'Courier New', Courier, monospace;
-        }
-
-        .log-item {
-            padding: 10px;
-            border-bottom: 1px solid #f8f8f8;
-            font-size: 1rem;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .attempt-num {
-            color: #bdc3c7;
-            margin-right: 10px;
-        }
-
-        .guess-val {
-            color: #333;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
-
-        .result {
-            font-weight: bold;
-        }
-
-        .res-a {
-            color: var(--accent);
-        }
-
-        .res-b {
-            color: var(--secondary);
-        }
+        .res-a { color: var(--accent); font-weight: bold; }
+        .res-b { color: var(--secondary); font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Codebreaker A/B</h1>
-    <p class="game-desc">ทายเลข 4 หลักที่ไม่ซ้ำกัน (0-9)</p>
-    
-    <div class="key-legend">
-        <span class="key-a">[A] = ถูกตำแหน่ง</span>
-        <span class="key-b">[B] = ผิดตำแหน่ง</span>
+    <div class="header">
+        <h1>Codebreaker</h1>
+        <small style="color:#7f8c8d">A=ถูกที่, B=ถูกเลขแต่ผิดที่</small>
     </div>
 
-    <div class="input-group">
-        <input type="text" id="guessInput" maxlength="4" placeholder="____" onkeypress="handleEnter(event)">
-        
+    <div id="log">
+        <!-- รายการที่ทายแล้วจะมาโผล่ตรงนี้ต่อท้ายลงไปเรื่อยๆ -->
+    </div>
+
+    <div class="controls">
+        <input type="text" id="guessInput" maxlength="4" placeholder="ทายเลข" onkeypress="if(event.key==='Enter') makeGuess()">
         <div class="button-row">
-            <button class="btn-reset" onclick="initGame()">เริ่มใหม่</button>
-            <button class="btn-guess" onclick="makeGuess()">ทายคำตอบ</button>
+            <button class="btn-reset" onclick="initGame()">ล้างใหม่</button>
+            <button class="btn-guess" onclick="makeGuess()">ตกลง</button>
         </div>
     </div>
-
-    <div id="message"></div>
-    <div id="log"></div>
 </div>
 
 <script>
     let secretCode = "";
     let attempts = 0;
 
-    // เริ่มเกมครั้งแรก
     initGame();
 
     function initGame() {
         secretCode = "";
-        const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-        // สุ่มเลข 4 หลักไม่ซ้ำ
+        const numbers = [0,1,2,3,4,5,6,7,8,9];
         for (let i = 0; i < 4; i++) {
             const randomIndex = Math.floor(Math.random() * numbers.length);
             secretCode += numbers.splice(randomIndex, 1);
         }
         attempts = 0;
-        document.getElementById('log').innerHTML = "";
-        document.getElementById('message').innerHTML = "เตรียมตัวพร้อม... ลองทายดูสิ!";
-        document.getElementById('message').style.color = "#333";
+        document.getElementById('log').innerHTML = '<div style="text-align:center; color:#ccc; padding-top:20px;">เริ่มทายได้เลย!</div>';
         document.getElementById('guessInput').value = "";
-        document.getElementById('guessInput').focus();
-        console.log("Secret Code (debug):", secretCode); 
-    }
-
-    function handleEnter(e) {
-        if (e.key === 'Enter') makeGuess();
+        console.log("Secret:", secretCode);
     }
 
     function makeGuess() {
-        const inputInput = document.getElementById('guessInput');
-        const input = inputInput.value;
-        const message = document.getElementById('message');
+        const inputField = document.getElementById('guessInput');
+        const input = inputField.value;
         const log = document.getElementById('log');
 
-        // ตรวจสอบ Input
-        if (input.length !== 4 || isNaN(input)) {
-            alert("กรุณาใส่ตัวเลขให้ครบ 4 หลัก");
-            inputInput.value = "";
+        if (input.length !== 4 || isNaN(input) || new Set(input).size !== 4) {
+            alert("กรุณาใส่เลข 4 หลักไม่ซ้ำกัน");
             return;
         }
-        if (new Set(input).size !== 4) {
-            alert("ตัวเลขต้องห้ามซ้ำกัน!");
-            inputInput.value = "";
-            return;
-        }
+
+        if (attempts === 0) log.innerHTML = ""; // ล้างข้อความเริ่มต้น
 
         attempts++;
-        let a_count = 0; // แทน Bulls (ถูกตัวถูกตำแหน่ง)
-        let b_count = 0; // แทน Cows (ถูกตัวผิดตำแหน่ง)
-
-        // ตรวจสอบ A และ B
+        let a = 0, b = 0;
         for (let i = 0; i < 4; i++) {
-            if (input[i] === secretCode[i]) {
-                a_count++;
-            } else if (secretCode.includes(input[i])) {
-                b_count++;
-            }
+            if (input[i] === secretCode[i]) a++;
+            else if (secretCode.includes(input[i])) b++;
         }
 
-        // แสดงผลในประวัติ (Log)
         const logItem = document.createElement('div');
         logItem.className = 'log-item';
         logItem.innerHTML = `
-            <span><span class="attempt-num">#${attempts}</span> <span class="guess-val">${input}</span></span>
-            <span class="result">
-                <span class="res-a">${a_count} A</span>, 
-                <span class="res-b">${b_count} B</span>
-            </span>`;
-        log.prepend(logItem);
+            <span>#${attempts}) <strong>${input}</strong></span>
+            <span><span class="res-a">${a} A</span> <span class="res-b">${b} B</span></span>
+        `;
 
-        // ตรวจสอบสถานะแพ้ชนะ
-        if (a_count === 4) {
-            message.innerHTML = `ยินดีด้วย! คุณชนะแล้วในครั้งที่ ${attempts}!`;
-            message.style.color = "#27ae60";
-            alert(`ไชโย! ปลดล็อคสำเร็จใน ${attempts} ครั้ง`);
-        } else {
-            message.innerHTML = `พยายามต่อไป! ครั้งที่ ${attempts}...`;
-            message.style.color = "#333";
+        // ใช้ appendChild เพื่อต่อท้ายด้านล่าง
+        log.appendChild(logItem);
+
+        // คำสั่งเด็ด: เลื่อน Scroll ลงไปล่างสุดอัตโนมัติเมื่อมีการทายใหม่
+        log.scrollTop = log.scrollHeight;
+
+        if (a === 4) {
+            alert(`เก่งมาก! คุณปลดล็อคได้ใน ${attempts} ครั้ง`);
+            initGame();
         }
 
-        inputInput.value = "";
-        inputInput.focus();
+        inputField.value = "";
+        inputField.focus();
     }
 </script>
 
