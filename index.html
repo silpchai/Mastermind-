@@ -3,36 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulls and Cows - เกมทายเลข 4 หลัก</title>
+    <title>A/B Logic Codebreaker - เกมทายเลข 4 หลัก</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; padding: 20px; background-color: #f0f2f5; }
-        .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        h1 { color: #1a73e8; margin-bottom: 10px; }
-        p { color: #5f6368; font-size: 0.9rem; }
-        .input-group { margin: 20px 0; }
-        input { padding: 10px; font-size: 1.2rem; width: 120px; text-align: center; border: 2px solid #ddd; border-radius: 8px; outline: none; }
-        input:focus { border-color: #1a73e8; }
-        button { padding: 10px 20px; font-size: 1rem; cursor: pointer; border: none; border-radius: 8px; transition: 0.3s; margin: 5px; }
-        .btn-guess { background-color: #1a73e8; color: white; }
-        .btn-guess:hover { background-color: #1557b0; }
-        .btn-reset { background-color: #ea4335; color: white; }
-        #log { margin-top: 20px; text-align: left; max-height: 250px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 10px; }
-        .log-item { padding: 8px; border-bottom: 1px solid #fafafa; font-family: monospace; }
-        .bull { color: #34a853; font-weight: bold; }
-        .cow { color: #fbbc05; font-weight: bold; }
+        :root {
+            --primary: #2c3e50;
+            --accent: #e74c3c; /* Red for A */
+            --secondary: #3498db; /* Blue for B */
+            --light: #ecf0f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+        }
+
+        .game-desc {
+            color: #7f8c8d;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .key-legend {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .key-a {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .key-b {
+            color: var(--secondary);
+            border-bottom: 2px solid var(--secondary);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        input {
+            padding: 12px;
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            text-align: center;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            transition: 0.2s;
+            font-weight: 600;
+        }
+
+        .btn-guess {
+            background-color: var(--primary);
+            color: white;
+            flex-grow: 2;
+        }
+
+        .btn-guess:hover {
+            background-color: #1a252f;
+        }
+
+        .btn-reset {
+            background-color: #e0e0e0;
+            color: #333;
+            flex-grow: 1;
+        }
+
+        .btn-reset:hover {
+            background-color: #d0d0d0;
+        }
+
+        #message {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        #log {
+            margin-top: 2rem;
+            text-align: left;
+            max-height: 250px;
+            overflow-y: auto;
+            border-top: 2px solid #eee;
+            padding-top: 15px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .log-item {
+            padding: 10px;
+            border-bottom: 1px solid #f8f8f8;
+            font-size: 1rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .attempt-num {
+            color: #bdc3c7;
+            margin-right: 10px;
+        }
+
+        .guess-val {
+            color: #333;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .result {
+            font-weight: bold;
+        }
+
+        .res-a {
+            color: var(--accent);
+        }
+
+        .res-b {
+            color: var(--secondary);
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Bulls & Cows</h1>
-    <p>ทายเลข 4 หลักที่ไม่ซ้ำกัน (0-9)</p>
+    <h1>Codebreaker A/B</h1>
+    <p class="game-desc">ทายเลข 4 หลักที่ไม่ซ้ำกัน (0-9)</p>
     
+    <div class="key-legend">
+        <span class="key-a">[A] = ถูกตำแหน่ง</span>
+        <span class="key-b">[B] = ผิดตำแหน่ง</span>
+    </div>
+
     <div class="input-group">
-        <input type="text" id="guessInput" maxlength="4" placeholder="1234" onkeypress="handleEnter(event)">
-        <br>
-        <button class="btn-guess" onclick="makeGuess()">ทายคำตอบ</button>
-        <button class="btn-reset" onclick="initGame()">เริ่มใหม่</button>
+        <input type="text" id="guessInput" maxlength="4" placeholder="____" onkeypress="handleEnter(event)">
+        
+        <div class="button-row">
+            <button class="btn-reset" onclick="initGame()">เริ่มใหม่</button>
+            <button class="btn-guess" onclick="makeGuess()">ทายคำตอบ</button>
+        </div>
     </div>
 
     <div id="message"></div>
@@ -56,9 +212,11 @@
         }
         attempts = 0;
         document.getElementById('log').innerHTML = "";
-        document.getElementById('message').innerHTML = "เกมเริ่มแล้ว! ลองทายดูสิ";
+        document.getElementById('message').innerHTML = "เตรียมตัวพร้อม... ลองทายดูสิ!";
+        document.getElementById('message').style.color = "#333";
         document.getElementById('guessInput').value = "";
-        console.log("Secret Code (for debugging):", secretCode); // แอบดูเฉลยใน Console ได้
+        document.getElementById('guessInput').focus();
+        console.log("Secret Code (debug):", secretCode); 
     }
 
     function handleEnter(e) {
@@ -66,48 +224,59 @@
     }
 
     function makeGuess() {
-        const input = document.getElementById('guessInput').value;
+        const inputInput = document.getElementById('guessInput');
+        const input = inputInput.value;
         const message = document.getElementById('message');
         const log = document.getElementById('log');
 
         // ตรวจสอบ Input
         if (input.length !== 4 || isNaN(input)) {
             alert("กรุณาใส่ตัวเลขให้ครบ 4 หลัก");
+            inputInput.value = "";
             return;
         }
         if (new Set(input).size !== 4) {
-            alert("ตัวเลขห้ามซ้ำกัน!");
+            alert("ตัวเลขต้องห้ามซ้ำกัน!");
+            inputInput.value = "";
             return;
         }
 
         attempts++;
-        let bulls = 0;
-        let cows = 0;
+        let a_count = 0; // แทน Bulls (ถูกตัวถูกตำแหน่ง)
+        let b_count = 0; // แทน Cows (ถูกตัวผิดตำแหน่ง)
 
-        // ตรวจสอบ Bulls และ Cows
+        // ตรวจสอบ A และ B
         for (let i = 0; i < 4; i++) {
             if (input[i] === secretCode[i]) {
-                bulls++;
+                a_count++;
             } else if (secretCode.includes(input[i])) {
-                cows++;
+                b_count++;
             }
         }
 
-        // แสดงผล
+        // แสดงผลในประวัติ (Log)
         const logItem = document.createElement('div');
         logItem.className = 'log-item';
-        logItem.innerHTML = `#${attempts} | ทาย: <strong>${input}</strong> -> <span class="bull">${bulls} Bulls</span>, <span class="cow">${cows} Cows</span>`;
+        logItem.innerHTML = `
+            <span><span class="attempt-num">#${attempts}</span> <span class="guess-val">${input}</span></span>
+            <span class="result">
+                <span class="res-a">${a_count} A</span>, 
+                <span class="res-b">${b_count} B</span>
+            </span>`;
         log.prepend(logItem);
 
-        if (bulls === 4) {
-            message.innerHTML = `<h2 style="color:#34a853">ยินดีด้วย! คุณชนะแล้ว!</h2> ใช้ไปทั้งหมด ${attempts} ครั้ง`;
-            alert("ไชโย! คุณชนะแล้ว");
+        // ตรวจสอบสถานะแพ้ชนะ
+        if (a_count === 4) {
+            message.innerHTML = `ยินดีด้วย! คุณชนะแล้วในครั้งที่ ${attempts}!`;
+            message.style.color = "#27ae60";
+            alert(`ไชโย! ปลดล็อคสำเร็จใน ${attempts} ครั้ง`);
         } else {
-            message.innerHTML = `พยายามต่อไป! (ทายไปแล้ว ${attempts} ครั้ง)`;
+            message.innerHTML = `พยายามต่อไป! ครั้งที่ ${attempts}...`;
+            message.style.color = "#333";
         }
 
-        document.getElementById('guessInput').value = "";
-        document.getElementById('guessInput').focus();
+        inputInput.value = "";
+        inputInput.focus();
     }
 </script>
 
